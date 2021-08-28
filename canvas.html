@@ -1,0 +1,150 @@
+<html>
+  <script>let tokenData = {"hash":"8aa60b5896d4e3d9bcf8ca28523b402639eb9d9f135e885adb81fc4fe622bafc","tokenId":"8000001"}</script>
+  <head>
+    <style type="text/css"> html{background-color: white;}body{margin: 0; padding: 0;}canvas{padding: 0; margin: auto; display: block; position: absolute; top: 0; bottom: 0; left: 0; right: 0;}</style>
+  </head>
+  <body> <canvas id="canvas"></canvas> 
+<script>
+const P_YWRAPB = 4,P_YWRAP = 1 << P_YWRAPB,P_ZWRAPB = 8,P_ZWRAP = 1 << P_ZWRAPB,P_SIZE = 4095,
+      wi = window,
+      oHe = wi.innerHeight,
+      oWi = oHe,
+      iHe = oHe-(oHe*0.1),
+      iWi = iHe,
+      s_c = i => 0.5 * (1.0 - Math.cos(i * Math.PI));
+let oF = [[0,0],[oWi,0],[oWi,oHe],[0,oHe],[0,0]],
+    mpOF = interPt(oF[0], oF[2], oF[1], oF[3]),
+    mpFOf = [mpOF.x, mpOF.y],
+    disFW = (oWi-iWi)/2,
+    disFH = (oHe-iHe)/2,
+    iF = [[disFW, disFH],[disFW+iWi,disFH],[disFW+iWi,disFH+iHe],[disFW,disFH+iHe],[disFW, disFH]],
+    outerDIAG = Math.sqrt(Math.pow(oF[0][0]-oF[2][0], 2) + Math.pow(oF[0][1]-oF[2][1], 2)),
+    innerDIAG = Math.sqrt(Math.pow(iF[0][0]-iF[2][0], 2) + Math.pow(iF[0][1]-iF[2][1], 2)),
+    ca = document.getElementById('canvas'),
+    p_octaves = 4,
+    p_amp_falloff = 0.5,
+    perlin,
+    w = 'white',
+    bl = 'black',
+    features;
+ca.width = oWi;
+ca.height = oHe;
+
+let hash = random_hash() //tokenData.hash;
+console.log(hash)
+let seed = Number("0." + parseInt(hash.slice(0, 16), 16));
+features = rI(seed, oF, iF,ca);
+
+console.log(features)
+
+function rI(uuid, oF, iF, ca) {
+  nS(uuid);
+  let sId = String(uuid),
+      cF = oHe/1000,
+      ct = ca.getContext("2d");
+      cD = [0,1,2,3,10],
+      ln = Math.round(rm(sId[4], 0, 9, 20, 50)),
+      l = ln*cF,
+      a = Math.round(rm(sId[3], 0, 9, -50, -70)),
+      maxB = Math.round(rm(ln, 20, 70, 5, 20)),
+      mHCn = Math.round(rm(sId[5], 0, 9, 25, 100)),
+      mHC = mHCn*cF,
+      mHWn = (mHCn/3 ) + Math.round(rm(sId[6], 0, 9, 10, (mHCn*0.6))),
+      mHW = mHWn*cF,
+      bn = Math.round(rm(sId[2], 0, 9, 0, maxB)),
+      b = bn*cF,
+      bC = rm(Number(sId[7]+sId[8]+sId[9]), 0, 1000, 140, 420)%360,
+      baseCS = gBCS(bC),
+      cSn = Object.keys(baseCS)[sId[3]%Object.keys(baseCS).length],
+      cS = baseCS[cSn],
+      sS = gSS(cD, cSn),
+      sSt = Object.keys(sS)[sId[6]%Object.keys(sS).length],
+      style = sS[sSt](cS.p, cS.s, cS.t);
+      ct.lineWidth = style[5]*cF;
+  let p0 = [0,0],
+      rP = rotV([0,l], d2r(a)),
+      rP2 = rotV([0,l], d2r(a*-1)),
+      rPB = rotV([0,b], d2r(a)),
+      rPB2 = rotV([0,b], d2r(a*-1)),
+      fC =  trC([p0, rP], [(600*cF), (600*cF)]),
+      h = fC[0][0]-fC[1][0],
+      v = -(fC[0][1]-fC[1][1]),
+      sC = trC( [...fC], [ h, v]),
+      bxZ = [...fC, ...sC],
+      distV = aVe(rPB, rP), 
+      distV2 = aVe(rPB2, rP2),
+      rOB = [];
+  for(let i = 0; (b+l)*i < innerDIAG+(600*cF); i++){
+    for(let j = 0; (b+l)*j < innerDIAG+(600*cF); j++) {
+      if(rOB[j] === undefined){
+        rOB[j] = []
+      }
+      let trAR = trC( [...bxZ], mltVWN(distV, -i))
+      let trAC = trC( trAR, mltVWN(distV2, -j))
+      rOB[j].push(trAC)
+    }
+  };
+  let bxF1 = rOB[0][0][2],
+      bxF2 = rOB[0][rOB[0].length-1][3],
+      bxF3 = rOB[rOB.length-1][0][1],
+      bxF4 = rOB[rOB.length-1][rOB[0].length-1][0],
+      mp = interPt(bxF2, bxF3, bxF1, bxF4),
+      mpF = [mp.x, mp.y];
+  rOB.map(bxRs => {
+    return bxRs.reverse().map(bx => {
+      return trC(bx, sVe(mpFOf, mpF))
+    })
+  })
+  .reverse()
+  .map((bxs,i) => {    
+    bxs.forEach((bx, gi) => {
+      fc2 = n(000, (i*Math.PI));
+      fc = n(100000, (i*gi*Math.PI)/fc2);
+      let num = parseInt(String(fc).split("").reverse()[4]),f,h;
+      cl = style.filter(el => {
+        return(el[0] <= num && num <= el[1])
+      })[0]
+      if(cl.length === 0) {cl = [style[0]]};
+      if(cl[2]==="w") {
+        f = n(1000, i*gi);
+        h = rm(f, 0, 1, 0, mHW);
+      } else {
+        f = n(10000, i*gi*10);
+        h = rm(f, 0, 1, 0, mHC);
+      }
+      trBox = trC(bx, [0,-h]);
+      mafp(ct, [bx[3],bx[2],trBox[2],trBox[3]], cl[4]);mVfP(ct, [bx[3],bx[2],trBox[2],trBox[3]], cl[6]);mafp(ct, [bx[3],bx[1],trBox[1],trBox[3]], cl[5]);mVfP(ct, [bx[3],bx[1],trBox[1],trBox[3]], cl[6]);mafp(ct, [trBox[0],trBox[1],trBox[3],trBox[2]], cl[3]);mVfP(ct, [trBox[0],trBox[1],trBox[3],trBox[2]], cl[7]);
+    })
+  })
+  ct.lineWidth = 4*cF;mafp(ct, [oF[0],oF[1],iF[1],iF[0]] ,w);mafp(ct, [oF[1],oF[2],iF[2],iF[1]] ,w);mafp(ct, [oF[2],oF[3],iF[3],iF[2]] ,w);mafp(ct, [oF[3],oF[4],iF[4],iF[3]] ,w);mVfP(ct, [oF[0],oF[1],iF[1],iF[0]], w);mVfP(ct, [oF[1],oF[2],iF[2],iF[1]], w);mVfP(ct, [oF[2],oF[3],iF[3],iF[2]], w);mVfP(ct, [oF[3],oF[4],iF[4],iF[3]], w);ct.lineWidth = 2*cF;mVfP(ct, oF ,"rgb(170,170,170)");
+  return [
+        `Color Style: ${JSON.stringify(cSn)}`,
+        `Main Color: ${JSON.stringify(cSn=="mondrian"?"red/blue/yellow":gCN(bC))}`,
+        `Design Style: ${JSON.stringify(sSt)}`,
+        `Angle: ${JSON.stringify(a+90)}`,
+        `Box Length: ${JSON.stringify(ln)}`,
+        `Border Width: ${JSON.stringify(bn)}`,
+        `Max Height White: ${JSON.stringify(mHWn)}`,
+        `Max Height Color: ${JSON.stringify(mHCn)}`,
+  ]
+}
+/*P5PerlinNoisehttps://github.com/processing/p5.js/blob/1.3.1/src/math/noise.js#L36*/
+function n(P,_=0,l=0){if(null==perlin){perlin=new Array(P_SIZE+1);for(let P=0;P<P_SIZE+1;P++)perlin[P]=Math.random()}P<0&&(P=-P),_<0&&(_=-_),l<0&&(l=-l);let r,e,n,p,i,o=Math.floor(P),Z=Math.floor(_),t=Math.floor(l),f=P-o,E=_-Z,I=l-t,S=0,a=.5;for(let P=0;P<p_octaves;P++){let P=o+(Z<<P_YWRAPB)+(t<<P_ZWRAPB);r=s_c(f),e=s_c(E),n=perlin[P&P_SIZE],n+=r*(perlin[P+1&P_SIZE]-n),p=perlin[P+P_YWRAP&P_SIZE],n+=e*((p+=r*(perlin[P+P_YWRAP+1&P_SIZE]-p))-n),P+=P_ZWRAP,p=perlin[P&P_SIZE],p+=r*(perlin[P+1&P_SIZE]-p),i=perlin[P+P_YWRAP&P_SIZE],p+=e*((i+=r*(perlin[P+P_YWRAP+1&P_SIZE]-i))-p),S+=(n+=s_c(I)*(p-n))*a,a*=p_amp_falloff,o<<=1,Z<<=1,t<<=1,(f*=2)>=1&&(o++,f--),(E*=2)>=1&&(Z++,E--),(I*=2)>=1&&(t++,I--)}return S}
+function nS(e){const n=(()=>{const e=4294967296;let n,r;return{sS(t){r=n=(null==t?Math.random()*e:t)>>>0},gS:()=>n,rand:()=>(r=(1664525*r+1013904223)%e)/e}})();n.sS(e),perlin=new Array(P_SIZE+1);for(let e=0;e<P_SIZE+1;e++)perlin[e]=n.rand()}
+function mVfP(e,n,o,t=!0){n&&n.length>0&&(e.strokeStyle=o,e.beginPath(),n.forEach(n=>{e.lineTo(n[0],n[1])}),t&&e.lineTo(n[0][0],n[0][1]),e.stroke())}
+function h2R(a,e,r){var c,h,s,t,n,b,o,k;switch(1===arguments.length&&(e=a.s,r=a.v,a=a.h),b=r*(1-e),o=r*(1-(n=6*a-(t=Math.floor(6*a)))*e),k=r*(1-(1-n)*e),t%6){case 0:c=r,h=k,s=b;break;case 1:c=o,h=r,s=b;break;case 2:c=b,h=r,s=k;break;case 3:c=b,h=o,s=r;break;case 4:c=k,h=b,s=r;break;case 5:c=r,h=b,s=o}return`rgb(${Math.round(255*c)},${Math.round(255*h)},${Math.round(255*s)})`}
+function aVe(n,r){return new Array(n[0]+r[0],n[1]+r[1])}
+function mltVWN(n,r){return[n[0]*r,n[1]*r]}
+function sVe(n,r){return new Array(n[0]-r[0],n[1]-r[1])}
+function interPt(n,r,t,e){return inter(n[0],n[1],r[0],r[1],t[0],t[1],e[0],e[1])}
+function rm(n,r,t,e,u){return(n-r)/(t-r)*(u-e)+e}
+function trC(n,r){return n.map(n=>aVe(n,r))}
+function inter(n,r,t,e,u,i,f,c){if(n===t&&r===e||u===f&&i===c)return!1;if(de=(c-i)*(t-n)-(f-u)*(e-r),0===de)return!1;let d=((f-u)*(r-i)-(c-i)*(n-u))/de,o=((t-n)*(r-i)-(e-r)*(n-u))/de;return!(d<0||d>1||o<0||o>1)&&{x:n+d*(t-n),y:r+d*(e-r)}}
+function mafp(l,i,n){i&&i.length>0&&(l.fillStyle=n,l.beginPath(),i.forEach(i=>{l.lineTo(i[0],i[1])}),l.lineTo(i[0][0],i[0][1]),l.fill())}
+function rotV(s,n){return cs=Math.cos(n),sn=Math.sin(n),x=s[0]*cs-s[1]*sn,y=s[0]*sn+s[1]*cs,[x,y]}
+function d2r(n){return n*Math.PI/180}
+function random_hash(){let t="0123456789abcdef",a="0x";for(let n=64;n>0;--n)a+=t[Math.floor(Math.random()*t.length)];return a}
+function gCN(e){return[[0,15,"red"],[15,45,"orange"],[45,75,"yellow"],[75,105,"light green"],[105,135,"green"],[135,165,"spring green"],[165,195,"cyan"],[195,225,"azure"],[225,255,"blue"],[255,285,"violet"],[285,315,"magenta"],[315,345,"rose"],[345,360,"red"]].filter(r=>r[0]<e&&e<r[1])[0][2]}
+function gSS(h,R){let C=.7,l=1,b=.1,t=1,n=.3,i=1;return"mono"===R&&(C=.9,l=1,b=.4,t=1,n=.1,i=1),"mondrian"===R&&(C=.8,l=.7,b=.7,t=.9,n=.7,i=.6),{popart:(R,m,o)=>[[h[0],h[1],"p",h2R(R,C,l),"#0C0C0C","#0C0C0C",h2R(R,C,l),h2R(R,C,l)],[h[1],h[2],"s",h2R(m,b,t),"#0C0C0C","#0C0C0C",h2R(m,b,t),h2R(m,b,t)],[h[2],h[3],"t",h2R(o,n,i),"#0C0C0C","#0C0C0C",h2R(o,n,i),h2R(o,n,i)],[h[3],h[4],"w",w,"#0C0C0C","#0C0C0C","#CCCCCC","#CCCCCC"],bl,.4],comic:(R,m,o)=>[[h[0],h[1],"p",h2R(R,C,l),h2R(R,C,l-.3),h2R(R,C,l-.3),bl,bl],[h[1],h[2],"s",h2R(m,b,t),h2R(m,b,t-.3),h2R(m,b,t-.3),bl,bl],[h[2],h[3],"t",h2R(o,n,i),h2R(o,n,i-.3),h2R(o,n,i-.3),bl,bl],[h[3],h[4],"w",w,"#B4B4B4","#B4B4B4",bl,bl],bl,1],minimal:(R,m,o)=>[[h[0],h[1],"p",w,h2R(R,C,l),w,bl,bl],[h[1],h[2],"s",w,h2R(m,b,t),w,bl,bl],[h[2],h[3],"t",w,h2R(o,n,i),w,bl,bl],[h[3],h[4],"w",w,w,w,bl,bl],w,.4],realism:(R,m,o)=>[[h[0],h[1],"p",h2R(R,C-.1,l),h2R(R-.01,C-.3,l/2),h2R(R-.01,C-.2,l/1.2),h2R(R-.01,C-.2,l/1.2),h2R(R,C,l)],[h[1],h[2],"s",h2R(m,b-.15,t),h2R(m-.01,b-.3,t/2),h2R(m-.01,b-.2,t/1.2),h2R(m-.01,b-.2,t/1.2),h2R(m,b,t)],[h[2],h[3],"t",h2R(o,n-.08,i),h2R(o-.01,n-.04,i/2),h2R(o-.01,n-.04,i/1.2),h2R(o-.01,n-.04,i/1.2),h2R(o,n,i)],[h[3],h[4],"w",h2R(1,0,.98),h2R(1,0,.45),h2R(1,0,.75),h2R(1,0,.75),h2R(1,0,.9)],w,.4]}}
+function gBCS(m){return{complementary:{p:rm(m,0,360,0,1),s:rm((m+180)%360,0,360,0,1),t:rm((m+180)%360,0,360,0,1)},mondrian:{p:rm(360,0,360,0,1),s:rm(38,0,360,0,1),t:rm(223,0,360,0,1)},mono:{p:rm(m,0,360,0,1),s:rm(m,0,360,0,1),t:rm(m,0,360,0,1)}}}
+</script></body></html>
